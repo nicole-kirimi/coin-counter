@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coin Counter</title>
+    <link rel="stylesheet" href="./src/css/style.css">
+</head>
+<body>
+    <h1>Coin Counter</h1>
+    <label for="amount">Enter amount:</label>
+    <input type="number" id="amount" name="amount" step="0.01">
+    <button onclick="calculateChange()">Calculate Change</button>
+    <div id="result"></div>
+
+    <script>
+        function coinCounter() {
+            // Define the values of each coin
+            const coinValues = {
+                quarters: 25,
+                dimes: 10,
+                nickels: 5,
+                pennies: 1
+            };
+
+            // Closure function to calculate coins for a specific type
+            function calculateCoins(coinType, amount) {
+                // Base case: If the amount is 0, return 0
+                if (amount === 0) {
+                    return 0;
+                }
+
+                // Find the largest coin value less than or equal to the amount
+                let largestCoin = '';
+                for (let coin in coinValues) {
+                    if (coinValues[coin] <= amount) {
+                        largestCoin = coin;
+                        break;
+                    }
+                }
+
+                // Calculate the number of the largest coin needed
+                const numCoins = Math.floor(amount / coinValues[largestCoin]);
+
+                // Calculate the remaining amount after using the largest coin
+                const remainingAmount = amount % coinValues[largestCoin];
+
+                // Recursively call the closure function for the remaining amount
+                return numCoins + calculateCoins(coinType, remainingAmount);
+            }
+
+            // Return an object containing functions for each coin type
+            return {
+                quarters: amount => calculateCoins('quarters', amount),
+                dimes: amount => calculateCoins('dimes', amount),
+                nickels: amount => calculateCoins('nickels', amount),
+                pennies: amount => calculateCoins('pennies', amount)
+            };
+        }
+
+        function calculateChange() {
+            const amountInput = document.getElementById('amount');
+            const amount = parseFloat(amountInput.value);
+            if (isNaN(amount)) {
+                alert('Please enter a valid amount.');
+                return;
+            }
+
+            const counter = coinCounter();
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '';
+
+            const quarters = counter.quarters(amount);
+            const dimes = counter.dimes(amount);
+            const nickels = counter.nickels(amount);
+            const pennies = counter.pennies(amount);
+
+            const resultHTML = `
+                <p>Quarters: ${quarters}</p>
+                <p>Dimes: ${dimes}</p>
+                <p>Nickels: ${nickels}</p>
+                <p>Pennies: ${pennies}</p>
+            `;
+
+            resultDiv.innerHTML = resultHTML;
+        }
+    </script>
+</body>
+</html>
